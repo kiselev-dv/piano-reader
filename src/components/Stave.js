@@ -16,18 +16,18 @@ export default function(props) {
     const {
         clef,
         key,
-        voices
+        system
     } = props;
 
     let {grandStave} = props;
-    const bothClefs = isDoubleVoices(voices);
+    const bothClefs = isDoubleVoices(system);
 
     if (bothClefs) {
         grandStave = true;
     }
 
-    const trebleVoice = voices.find( v => (v.clef || clef) === 'treble' );
-    const bassVoice = voices.find( v => (v.clef || clef) === 'bass' );
+    const trebleVoice = system.find( v => (v.clef || clef) === 'treble' );
+    const bassVoice = system.find( v => (v.clef || clef) === 'bass' );
     const voice = (trebleVoice || bassVoice);
 
     let activeAbc = props.activeABC || activeNotesAsABC(props.activeNotes);
