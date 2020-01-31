@@ -2,6 +2,7 @@ import React from 'react'
 
 import PianoKeyboard from './PianoKeyboard';
 import MidiSelector from './MidiSelector';
+import Lessons from './Lessons'
 import Stave from './Stave'
 
 import NotesState, {activeNotesAsABC} from '../util/Notes'
@@ -18,16 +19,6 @@ function bindLast(fn, that, ...args) {
 function sampleArray(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
-
-const lessons = [
-    {
-        name: "Grand Stave",
-        system: [
-            {clef:'treble', abc: "[CGcgc']"},
-            {clef:'bass', abc: "[F,C,F,,C,,]"}
-        ]
-    }
-];
 
 export default class Game extends React.Component {
 
@@ -68,10 +59,20 @@ export default class Game extends React.Component {
         input.onmidimessage = notes.handleMidiMessage.bind(notes);
     }
 
+    handleCourseChange(course) {
+        const lessons = course.generator();
+        const state = {
+            lesson: lessons[0],
+            lessons: lessons
+        };
+        this.setState(state);
+    }
+
     render() {
         return (
             <div id="game">
                 <MidiSelector onConnect={this.handleMidiConnect.bind(this)}/>
+                <Lessons onSelect={this.handleCourseChange.bind(this)} />
                 <Stave
                     activeABC={this.state.activeABC}
                     grandStave={false}

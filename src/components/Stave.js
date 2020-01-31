@@ -14,12 +14,15 @@ export default function(props) {
     let activeVoice;
 
     const {
-        clef,
         key,
         system
     } = props;
 
-    let {grandStave} = props;
+    let {clef, grandStave} = props;
+    if (!clef && system.length === 1) {
+        clef = system[0].clef || 'treble';
+    }
+
     const bothClefs = isDoubleVoices(system);
 
     if (bothClefs) {
