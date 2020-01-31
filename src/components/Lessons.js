@@ -2,23 +2,25 @@ import React from 'react';
 import './Lessons.css'
 import {generateOneClefClasses} from '../util/ClassesGenerator'
 
+const COURSES = [{
+    heder: "Treble clef",
+    subtitle: "(Only markers)",
+    generator: generateOneClefClasses.bind(null, "C G c g c' C, G,")
+}, {
+    heder: "Bass clef",
+    subtitle: "(Only markers)",
+    generator: generateOneClefClasses.bind(null, "C,, F,, C, F, C F c", 'bass')
+}];
+
+export {COURSES};
+
 export default class Lessons extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.lessons = [{
-            heder: "Treble clef",
-            subtitle: "(Only markers)",
-            generator: generateOneClefClasses.bind(null, "C G c g c' C, G,")
-        }, {
-            heder: "Bass clef",
-            subtitle: "(Only markers)",
-            generator: generateOneClefClasses.bind(null, "C,, F,, C, F, C F c", 'bass')
-        }];
-
         this.state = {
-            lesson: null
+            lesson: props.lesson
         };
 
         this.renderLesson = this.renderLesson.bind(this);
@@ -53,7 +55,7 @@ export default class Lessons extends React.Component {
     render() {
         return (
             <div className="lessons">
-                {this.renderLessons(this.lessons)}
+                {this.renderLessons(this.props.lessons)}
             </div>
         );
     }
