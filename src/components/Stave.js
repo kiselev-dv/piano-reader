@@ -88,7 +88,7 @@ export default function(props) {
     }
 
     return (
-        <div>
+        <div className="stave-container">
             <style jsx="true">{`
                 path.abcjs-note.abcjs-v${activeVoice} {
                     fill: #3AC8DA;

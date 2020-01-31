@@ -1,0 +1,31 @@
+* {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+html, body, #root, #game {
+    height: 100%;
+}
+
+#game {
+    display: flex;
+    flex-direction: column;
+}
+
+.ReactPiano__Keyboard {
+    margin: auto;
+}
+
+.stave-container {
+    margin: auto;
+    width: 200px;
+    overflow: hidden;
+}
+
+.piano-container > div {
+    height: auto;
+}
+
+.piano-container {
+    margin-bottom: 1em;
+}

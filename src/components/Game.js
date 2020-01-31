@@ -70,7 +70,7 @@ export default class Game extends React.Component {
 
     render() {
         return (
-            <div>
+            <div id="game">
                 <MidiSelector onConnect={this.handleMidiConnect.bind(this)}/>
                 <Stave
                     activeABC={this.state.activeABC}

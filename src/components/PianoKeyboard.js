@@ -14,14 +14,16 @@ export default function PianoKeyboard(props) {
     });
 
     return (
-        <Piano
-            noteRange={{ first: firstNote, last: lastNote }}
-            playNote={props.playNote}
-            stopNote={props.stopNote}
-            width={props.width}
-            keyWidthToHeight={0.2}
-            keyboardShortcuts={keyboardShortcuts}
-            activeNotes={props.activeNotes}
-        />
+        <div className="piano-container">
+            <Piano className="test"
+                noteRange={{ first: firstNote, last: lastNote }}
+                playNote={props.playNote}
+                stopNote={props.stopNote}
+                width={props.width}
+                keyWidthToHeight={0.2}
+                keyboardShortcuts={keyboardShortcuts}
+                activeNotes={props.activeNotes}
+            />
+        </div>
     );
 }
