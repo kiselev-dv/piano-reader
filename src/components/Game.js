@@ -55,10 +55,11 @@ export default class Game extends React.Component {
         });
 
         if(this.matcher.match(activeNotes)) {
-            const lesson = sampleArray(this.state.lessons);
-
-            this.setState({lesson});
-            this.matcher = new NotesMatcher(lesson.system);
+            setTimeout(() => {
+                const lesson = sampleArray(this.state.lessons);
+                this.setState({lesson});
+                this.matcher = new NotesMatcher(lesson.system);
+            }, 300);
         }
     }
 
