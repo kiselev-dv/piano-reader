@@ -5,7 +5,7 @@ import {generateOneClefClasses} from '../util/ClassesGenerator'
 const COURSES = [{
     heder: "Treble clef",
     subtitle: "(Only markers)",
-    generator: generateOneClefClasses.bind(null, "C G c g c' C, G,")
+    generator: generateOneClefClasses.bind(null, "C G c g c' G,")
 }, {
     heder: "Bass clef",
     subtitle: "(Only markers)",

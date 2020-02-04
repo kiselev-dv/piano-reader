@@ -1,5 +1,3 @@
-import {activeNotesAsABC} from './Notes'
-import { act } from '@testing-library/react';
 
 const ABC_NOTE_REGEXP = /([_^]?[abcdefgABCDEFG]{1}[,']*)/g;
 
@@ -61,6 +59,11 @@ export default class NotesMatcher {
         this.lessonNoteNumbers = lesson2Notes(this.lesson);
     }
 
+    reset(lesson) {
+        this.lesson = lesson;
+        this.lessonNoteNumbers = lesson2Notes(this.lesson);
+    }
+
     match(activeNotes) {
         let matched = [];
 
@@ -70,8 +73,6 @@ export default class NotesMatcher {
                 matched.push(n);
             }
         }
-
-        console.log(matched);
 
         // All notes are matched
         return matched.length === activeNotes.length && matched.length === this.lessonNoteNumbers.length;

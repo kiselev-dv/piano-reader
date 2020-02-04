@@ -56,7 +56,7 @@ export default function(props) {
             // Add empty overlay chord to have consistent placing
             // of elements, otherwise left padding changes,
             // when you have active notes
-            bassLine += "& []"
+            bassLine += " & []"
         }
 
         abc = `
@@ -79,7 +79,7 @@ export default function(props) {
         line += activeAbc;
 
         if(!activeAbc) {
-            line += '& []';
+            line += ' & []';
         }
 
         abc = `

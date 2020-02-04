@@ -25,7 +25,7 @@
 }
 
 .lesson:first-child {
-    margin-left: 10px;
+    margin-left: 0px;
 }
 
 .lesson > .wrapper {

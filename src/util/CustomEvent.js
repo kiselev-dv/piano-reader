@@ -14,7 +14,7 @@ export default class CEvent {
         }
     }
 
-    fire(data) {
-        this.listeners.forEach(l => l(data));
+    fire(...data) {
+        this.listeners.forEach(l => l(...data));
     }
 };

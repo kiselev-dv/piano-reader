@@ -7,6 +7,19 @@ html, body, #root, #game {
     height: 100%;
 }
 
+#root {
+    margin: 0px 1em 0px 1em;
+    padding: 0 0 0 0;
+}
+
+#game > *:first-child {
+    margin-top: 1em;
+}
+
+#game > *:last-child {
+    margin-bottom: 1em;
+}
+
 #game {
     display: flex;
     flex-direction: column;
@@ -24,8 +37,4 @@ html, body, #root, #game {
 
 .piano-container > div {
     height: auto;
-}
-
-.piano-container {
-    margin-bottom: 1em;
 }
