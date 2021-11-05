@@ -1,3 +1,5 @@
+import CEvent from "./CustomEvent";
+import { activeNotesAsABC } from "./Notes";
 
 const ABC_NOTE_REGEXP = /([_^]?[abcdefgABCDEFG]{1}[,']*)/g;
 
@@ -33,11 +35,11 @@ export function abc2MIDI(abc) {
     return number;
 }
 
-export function lesson2Notes(lesson) {
+export function system2MIDINotes(system) {
     let noteNumbers = [];
 
-    if(lesson) {
-        lesson.forEach(line => {
+    if(system) {
+        system.forEach(line => {
             noteNumbers = noteNumbers.concat(abc2Notes(line.abc));
         });
     }
@@ -54,27 +56,100 @@ export function abc2Notes(abc) {
 }
 
 export default class NotesMatcher {
-    constructor(lesson) {
-        this.lesson = lesson;
-        this.lessonNoteNumbers = lesson2Notes(this.lesson);
+    constructor(system) {
+
+        this.matchEvent = new CEvent();
+        this.hitEvent = new CEvent();
+        this.missEvent = new CEvent();
+
+        this.reset(system);
     }
 
-    reset(lesson) {
-        this.lesson = lesson;
-        this.lessonNoteNumbers = lesson2Notes(this.lesson);
+    reset(system) {
+        this.system = system;
+        this.notes = system2MIDINotes(this.system);
+
+        this.matchOneByOne = !hasChord(this.system);
+
+        this._matched = [];
+        this._missed = [];
+    }
+
+    setActiveNotes(activeNotes) {
+
+        // If we are matching chord,
+        // all of the chord notes should be pressed
+        // at once.
+        // So we don't keep state ( this._matched )
+        if (!this.matchOneByOne) {
+            this._matched = [];
+        }
+
+        let allMatched = arraysMatch(this.notes, this._matched);
+
+        // We already have match, but state haven't
+        // been reset yet
+        if (allMatched) {
+            this.matchEvent.fire(this.notes);
+        }
+
+        // Notes which haven't been matched yet
+        let notesToMatch = this.notes.filter(n => !this._matched.includes(n));
+
+        // I we are matching notes one by one,
+        // take the next one after matched
+        if (this.matchOneByOne && !allMatched) {
+            if (this.notes.length > 0 && this._matched.length < this.notes.length) {
+                notesToMatch = [this.notes[this._matched.length]]
+            }
+        }
+
+        this._missed = activeNotes.filter(n => !notesToMatch.includes(n));
+
+        if (this._missed.length !== 0) {
+            this.missEvent.fire(this._missed);
+        }
+
+        const matchedActiveNotes = activeNotes.filter(n => notesToMatch.includes(n));
+        if (!allMatched && matchedActiveNotes.length > 0) {
+            this.hitEvent.fire(matchedActiveNotes);
+        }
+
+        // Update inner state
+        matchedActiveNotes.forEach(n => this._matched.push(n));
+
+        console.log(this.notes, this._matched);
+
+        allMatched = arraysMatch(this.notes, this._matched);
+        if (allMatched && this._missed.length === 0) {
+            this.matchEvent.fire(this._matched);
+        }
+    }
+
+    activeNotesAsABC(activeNotes) {
+        return activeNotesAsABC(activeNotes, !this.matchOneByOne);
     }
 
     match(activeNotes) {
         let matched = [];
 
-        // All active ntes are in lesson notes
+        // All active notes are in lesson notes
         for (let n of activeNotes) {
-            if(this.lessonNoteNumbers.indexOf(n) >= 0) {
+            if(this.notes.indexOf(n) >= 0) {
                 matched.push(n);
             }
         }
 
         // All notes are matched
-        return matched.length === activeNotes.length && matched.length === this.lessonNoteNumbers.length;
+        return matched.length === activeNotes.length
+            && matched.length === this.notes.length;
     }
+}
+
+function arraysMatch(a, b) {
+    return a.length === b.length && a.every(ea => b.includes(ea));
+}
+
+function hasChord(system) {
+    return system.some(line => line.abc.includes("[") )
 }

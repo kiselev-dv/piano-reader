@@ -2,12 +2,13 @@ import React from 'react'
 
 import PianoKeyboard from './PianoKeyboard';
 import MidiSelector from './MidiSelector';
-import Lessons, {COURSES} from './Lessons'
+import LessonsList from './LessonsList'
 import Stave from './Stave'
 
-import NotesState, {activeNotesAsABC} from '../util/Notes'
+import { LESSONS } from '../lessons/lessons'
+
+import NotesState from '../util/Notes'
 import NotesMatcher from '../util/NotesMatcher'
-import GameStatistics from '../util/GameStatistics'
 
 function bindLast(fn, that, ...args) {
     return function(...callArgs) {
@@ -23,69 +24,93 @@ export default class Game extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.notes = new NotesState();
         this.notes.stateChangeEvent.on(this.handleActiveNotes.bind(this));
 
-        const lessons = COURSES[0].generator();
+        const lesson = LESSONS[0];
+
+        const exercises = lesson.createExercises();
 
         this._hit = 0;
         this._miss = 0;
 
         this.state = {
+            lesson,
+
             activeNotes: [],
             activeABC: '',
-            lesson: lessons[0],
-            lessons: lessons,
-            showStaveABC: false
+
+            exercises,
+            exercise: sampleArray(exercises),
+
+            showStaveABC: false,
+            showGrandStave: false
         };
 
-        this.matcher = new NotesMatcher(this.state.lesson.system);
-        this.stat = new GameStatistics(this.matcher);
+        this.matcher = new NotesMatcher(this.state.exercise.system);
 
-        this.stat.hitEvent.on(this.hit.bind(this));
-        this.stat.missEvent.on(this.miss.bind(this));
+        this.matcher.matchEvent.on(this.match.bind(this));
+        this.matcher.missEvent.on(this.miss.bind(this));
     }
 
     handleActiveNotes(activeNotes) {
-        const activeABC = activeNotesAsABC(activeNotes, true)
+        this.matcher.setActiveNotes(activeNotes);
+
+        const activeABC = this.matcher.activeNotesAsABC(activeNotes);
         this.setState({
             activeNotes: activeNotes,
             activeABC: activeABC
         });
 
-        this.stat.handleActiveNotes(activeNotes);
+
+        if (activeNotes.length === 0 && this.nextExerciseAwaits) {
+            this.nextExercise();
+        }
     }
 
     handleMidiConnect(input) {
-        const notes = this.notes;
-        input.onmidimessage = notes.handleMidiMessage.bind(notes);
+        if (input) {
+            const notes = this.notes;
+            input.onmidimessage = notes.handleMidiMessage.bind(notes);
+        }
     }
 
-    handleCourseChange(course) {
-        const lessons = course.generator();
+    handleLessonChange(lesson) {
+        const exercises = lesson.createExercises();
+        const exercise = sampleArray(exercises);
+
         const state = {
-            lesson: lessons[0],
-            lessons: lessons
+            lesson,
+            exercise,
+            exercises
         };
+
         this.setState(state);
+
+        this.matcher.reset(exercise.system);
 
         this._hit = 0;
         this._miss = 0;
     }
 
-    hit() {
-        this._hit ++;
-
-        setTimeout(() => {
-            const lesson = sampleArray(this.state.lessons);
-            this.setState({lesson});
-            this.matcher.reset(lesson.system);
-        }, 300);
+    match() {
+        if (!this.nextExerciseAwaits) {
+            this._hit ++;
+            this.nextExerciseAwaits = true;
+        }
     }
 
     miss() {
-        this._miss ++;
+        if (!this.nextExerciseAwaits) {
+            this._miss ++;
+        }
+    }
+
+    nextExercise() {
+        this.nextExerciseAwaits = false;
+        const exercise = sampleArray(this.state.exercises);
+        this.setState({exercise});
+        this.matcher.reset(exercise.system);
     }
 
     render() {
@@ -98,14 +123,26 @@ export default class Game extends React.Component {
                         type="checkbox"
                         onChange={e => {this.setState({showStaveABC:e.target.checked});}}></input>
                     &nbsp;<label>Show stave ABC</label>
+                    &nbsp;<input
+                        type="checkbox"
+                        onChange={e => {this.setState({showGrandStave:e.target.checked});}}></input>
+                        &nbsp;<label>Show Grand Stave</label>
                 </div>
-                <Lessons lesson={COURSES[0]} lessons={COURSES}
-                    onSelect={this.handleCourseChange.bind(this)} />
+
+                <LessonsList selectedLesson={this.state.lesson} lessons={LESSONS}
+                    onSelect={this.handleLessonChange.bind(this)} />
+
                 <Stave
                     activeABC={this.state.activeABC}
-                    grandStave={false}
-                    system={this.state.lesson.system}
+                    activeAbcFill={this.nextExerciseAwaits ? "#30C72C" : "#3AC8DA"}
+                    grandStave={this.state.lesson.grandStave || this.state.showGrandStave}
+                    system={this.state.exercise.system}
                     renderABC={this.state.showStaveABC}/>
+
+                <div>
+                    <button style={{"width": "100px"}} onClick={this.nextExercise.bind(this)} >Skip</button>
+                </div>
+
                 <PianoKeyboard width={1600}
                     activeNotes={this.state.activeNotes}
                     playNote={bindLast(this.notes.handleKeyboard, this.notes, false)}

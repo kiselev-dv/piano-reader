@@ -20,7 +20,7 @@ export default class GameStatistics {
         else {
             if (isNotEmpty(this.accumulator)) {
                 this.missEvent.fire();
-                console.log(activeNotes, this.accumulator);
+                // console.log(activeNotes, this.accumulator);
             }
             this.accumulator = [];
         }

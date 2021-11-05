@@ -86,15 +86,17 @@ export default function(props) {
             K: ${key || ''} clef=${clef || 'treble'}
             L:1/4
             M:4/4
-            || [${line}]
+            || ${line}
         `;
     }
+
+    const activeAbcFill = props.activeAbcFill || "#3AC8DA";
 
     return (
         <div className="stave-container">
             <style jsx="true">{`
                 path.abcjs-note.abcjs-v${activeVoice} {
-                    fill: #3AC8DA;
+                    fill: ${activeAbcFill};
                 }
             `}
             </style>
