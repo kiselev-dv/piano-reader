@@ -1,25 +1,25 @@
 {
   "files": {
     "main.css": "/piano-reader/static/css/main.af727b1e.chunk.css",
-    "main.js": "/piano-reader/static/js/main.16a15f6d.chunk.js",
-    "main.js.map": "/piano-reader/static/js/main.16a15f6d.chunk.js.map",
+    "main.js": "/piano-reader/static/js/main.6e8febc6.chunk.js",
+    "main.js.map": "/piano-reader/static/js/main.6e8febc6.chunk.js.map",
     "runtime-main.js": "/piano-reader/static/js/runtime-main.4158f268.js",
     "runtime-main.js.map": "/piano-reader/static/js/runtime-main.4158f268.js.map",
-    "static/css/2.1e78366a.chunk.css": "/piano-reader/static/css/2.1e78366a.chunk.css",
-    "static/js/2.b641ba6a.chunk.js": "/piano-reader/static/js/2.b641ba6a.chunk.js",
-    "static/js/2.b641ba6a.chunk.js.map": "/piano-reader/static/js/2.b641ba6a.chunk.js.map",
+    "static/css/2.72e8b19c.chunk.css": "/piano-reader/static/css/2.72e8b19c.chunk.css",
+    "static/js/2.87f01aca.chunk.js": "/piano-reader/static/js/2.87f01aca.chunk.js",
+    "static/js/2.87f01aca.chunk.js.map": "/piano-reader/static/js/2.87f01aca.chunk.js.map",
     "index.html": "/piano-reader/index.html",
-    "precache-manifest.50769543ba057b437469d09c2e9e646c.js": "/piano-reader/precache-manifest.50769543ba057b437469d09c2e9e646c.js",
+    "precache-manifest.7e629cae876cc79811c586f6bc77d1cc.js": "/piano-reader/precache-manifest.7e629cae876cc79811c586f6bc77d1cc.js",
     "service-worker.js": "/piano-reader/service-worker.js",
-    "static/css/2.1e78366a.chunk.css.map": "/piano-reader/static/css/2.1e78366a.chunk.css.map",
+    "static/css/2.72e8b19c.chunk.css.map": "/piano-reader/static/css/2.72e8b19c.chunk.css.map",
     "static/css/main.af727b1e.chunk.css.map": "/piano-reader/static/css/main.af727b1e.chunk.css.map",
-    "static/js/2.b641ba6a.chunk.js.LICENSE": "/piano-reader/static/js/2.b641ba6a.chunk.js.LICENSE"
+    "static/js/2.87f01aca.chunk.js.LICENSE": "/piano-reader/static/js/2.87f01aca.chunk.js.LICENSE"
   },
   "entrypoints": [
     "static/js/runtime-main.4158f268.js",
-    "static/css/2.1e78366a.chunk.css",
-    "static/js/2.b641ba6a.chunk.js",
+    "static/css/2.72e8b19c.chunk.css",
+    "static/js/2.87f01aca.chunk.js",
     "static/css/main.af727b1e.chunk.css",
-    "static/js/main.16a15f6d.chunk.js"
+    "static/js/main.6e8febc6.chunk.js"
   ]
 }
