@@ -56,13 +56,10 @@ export function abc2Notes(abc) {
 }
 
 export default class NotesMatcher {
-    constructor(system) {
-
+    constructor() {
         this.matchEvent = new CEvent();
         this.hitEvent = new CEvent();
         this.missEvent = new CEvent();
-
-        this.reset(system);
     }
 
     reset(system) {

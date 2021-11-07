@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import PianoKeyboard from './PianoKeyboard';
 import MidiSelector from './MidiSelector';
@@ -16,10 +16,139 @@ function bindLast(fn, that, ...args) {
     }
 }
 
-function sampleArray(array) {
-    return array[Math.floor(Math.random() * array.length)];
+function sampleArray(array, except) {
+    let result = array[Math.floor(Math.random() * array.length)];
+
+    if (except && array.length > 1 && result === except) {
+        return sampleArray(array, except);
+    }
+
+    return result;
 }
 
+const notes = new NotesState();
+const matcher = new NotesMatcher();
+
+let nextExerciseAwaits = false;
+
+export default function Game() {
+    const [activeNotes, setActiveNotes] = useState();
+    const [activeABC, setActiveABC] = useState('');
+
+    const _lesson = LESSONS[0];
+    const _exercises = _lesson.createExercises();
+
+    const [lesson, setLesson] = useState(_lesson);
+    const [exercises, setExercises] = useState(_exercises);
+    const [exercise, setExercise] = useState(sampleArray(_exercises));
+
+    const [showStaveABC, setShowStaveABC] = useState(false);
+    const [showGrandStave, setShowGrandStave] = useState(false);
+
+    const hitRef = useRef(0);
+    const missRef = useRef(0);
+
+    useEffect(() => {
+        matcher.reset(exercise.system);
+    }, [exercise])
+
+    useEffect(() => {
+        notes.stateChangeEvent.on(handleActiveNotes);
+        matcher.matchEvent.on(handleMatch);
+        matcher.missEvent.on(handleMiss);
+    }, []);
+
+    function handleMidiConnect(input) {
+        input.onmidimessage = notes.handleMidiMessage.bind(notes);
+    }
+
+    function handleActiveNotes(activeNotes) {
+        matcher.setActiveNotes(activeNotes);
+
+        const activeABC = matcher.activeNotesAsABC(activeNotes);
+
+        setActiveNotes(activeNotes);
+        setActiveABC(activeABC);
+
+        if (activeNotes.length === 0 && nextExerciseAwaits) {
+            nextExercise();
+        }
+    }
+
+    function handleLessonChange(lesson) {
+
+        const exercises = lesson.createExercises();
+        const exercise = sampleArray(exercises, exercise);
+
+        setLesson(lesson);
+        setExercises(exercises);
+        setExercise(exercise);
+
+        matcher.reset(exercise.system);
+
+        hitRef.current = 0;
+        missRef.current = 0;
+    }
+
+    function handleMatch() {
+        if (!nextExerciseAwaits) {
+            hitRef.current ++;
+            nextExerciseAwaits = true;
+        }
+    }
+
+    function handleMiss() {
+        if (!nextExerciseAwaits) {
+            missRef.current ++;
+        }
+    }
+
+    function nextExercise() {
+        nextExerciseAwaits = false;
+        const exercise = sampleArray(exercises);
+        setExercise(exercise);
+        matcher.reset(exercise.system);
+    }
+
+    return (
+        <div id="game">
+            <MidiSelector onConnect={handleMidiConnect}/>
+            <div>
+                Hit: {hitRef.current}, Miss: {missRef.current},
+                &nbsp;<input
+                    type="checkbox"
+                    onChange={e => { setShowStaveABC(e.target.checked); }}></input>
+                &nbsp;<label>Show stave ABC</label>
+                &nbsp;<input
+                    type="checkbox"
+                    onChange={e => { setShowGrandStave(e.target.checked);}}></input>
+                    &nbsp;<label>Show Grand Stave</label>
+            </div>
+
+            <LessonsList selectedLesson={lesson} lessons={ LESSONS }
+                onSelect={handleLessonChange} />
+
+            <Stave
+                activeABC={activeABC}
+                activeAbcFill={nextExerciseAwaits ? "#30C72C" : "#3AC8DA"}
+                grandStave={(lesson && lesson.grandStave) || showGrandStave}
+                system={exercise.system}
+                renderABC={showStaveABC}/>
+
+            <div>
+                <button style={{"width": "100px"}} onClick={nextExercise} >Skip</button>
+            </div>
+
+            <PianoKeyboard width={1600}
+                activeNotes={ activeNotes }
+                playNote={bindLast(notes.handleKeyboard, notes, false)}
+                stopNote={bindLast(notes.handleKeyboard, notes, true)}
+            />
+        </div>
+    )
+}
+
+/*
 export default class Game extends React.Component {
 
     constructor(props) {
@@ -152,3 +281,4 @@ export default class Game extends React.Component {
         )
     }
 }
+*/

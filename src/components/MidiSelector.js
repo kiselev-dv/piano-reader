@@ -39,7 +39,8 @@ class MidiSelector extends React.Component {
     }
 
     connect() {
-        this.props.onConnect(this.getSelectedInput());
+        const input = this.getSelectedInput();
+        this.props.onConnect && input && this.props.onConnect(input);
     }
 
     getSelectedInput() {
