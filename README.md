@@ -1,4 +1,4 @@
-This is a music Sight-Reading training application
+Music Sight-Reading training application.
 
 Open https://kiselev-dv.github.io/piano-reader for live demo.
 
