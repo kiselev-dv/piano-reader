@@ -127,7 +127,8 @@ export default class NotesMatcher {
     }
 
     activeNotesAsABC(activeNotes) {
-        return activeNotesAsABC(activeNotes, !this.matchOneByOne);
+        const showAsChord = !this.matchOneByOne || this.notes.length <= 1;
+        return activeNotesAsABC(activeNotes, showAsChord);
     }
 
     match(activeNotes) {
