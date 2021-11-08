@@ -116,7 +116,7 @@ export default class Game extends React.Component {
     render() {
         return (
             <div id="game">
-                <MidiSelector onConnect={this.handleMidiConnect.bind(this)}/>
+                <MidiSelector notes={ this.notes }/>
                 <div>
                     Hit: {this._hit}, Miss: {this._miss},
                     &nbsp;<input

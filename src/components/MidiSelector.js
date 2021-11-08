@@ -1,80 +1,100 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import useLocalStorage from '../util/useLocalStorage';
 
-class MidiSelector extends React.Component {
-    constructor(props) {
-        super(props);
+function MidiSelector({ notes }) {
+    const [inputs, setInputs] = useState();
+    const [activeInput, setActiveInput] = useState();
+    const [autoconnectInputIds] = useLocalStorage('autoconnect-midi-input-ids', []);
 
-        this.state = {
-            value: null,
-            options: []
-        };
+    useEffect(() => {
+        navigator.requestMIDIAccess().then(access => {
+            setInputs(access.inputs);
 
-        navigator.requestMIDIAccess().then(this.gainAccess.bind(this));
-        this.handleChange = this.handleChange.bind(this);
-        this.connect = this.connect.bind(this);
-    }
-
-    gainAccess(access) {
-        this.setInputs(access.inputs);
-        const self = this;
-        access.onstatechange = function(e) {
-            console.log(e.port.name, e.port.manufacturer, e.port.state);
-            self.setInputs(access.inputs);
-        };
-    }
-
-    setInputs(inputs) {
-        this.inputs = inputs;
-
-        const options = [];
-        for (let input of inputs.values()) {
-            options.push({
-                key: input.id,
-                value: input.id,
-                text: input.name
-            });
-        }
-
-        this.setState({options});
-    }
-
-    connect() {
-        this.props.onConnect(this.getSelectedInput());
-    }
-
-    getSelectedInput() {
-        for(let input of this.inputs.values()) {
-            if(input.id === this.state.value) {
-                return input;
-            }
-        }
-        return null;
-    }
-
-    handleChange(event) {
-        this.setState({value: event.target.value});
-    }
-
-    createSelectItems() {
-        let items = [];
-        this.state.options.forEach(opt => {
-            items.push(<option key={opt.key} value={opt.value}>{opt.text}</option>);
+            access.onstatechange = (e) => {
+                console.log(e.port.name, e.port.manufacturer, e.port.state);
+                setInputs(access.inputs);
+            };
         });
-        return items;
+    }, []);
+
+    useEffect(() => {
+        if (activeInput && !inputs.has(activeInput.id)) {
+            setActiveInput(null);
+        }
+    }, [inputs, activeInput]);
+
+    useEffect(() => {
+        if (!inputs) return;
+
+        const auto = Array.from(inputs.values())
+            .find(inp => autoconnectInputIds.includes(inp.id));
+
+        auto && setActiveInput(auto);
+
+    }, [inputs, autoconnectInputIds])
+
+    const $inputs = Array.from(inputs ? inputs.values() : []).map(input =>
+        <option key={input.id} value={input.id}>
+            {input.name}
+        </option>
+    );
+
+    const handleOptionSelect = useCallback((e) => {
+        setActiveInput(inputs.get(e.target.value));
+    }, [inputs]);
+
+    useEffect(() => {
+        if (!activeInput) return;
+
+        activeInput.onmidimessage = notes.handleMidiMessage.bind(notes);
+
+    }, [ activeInput, notes ]);
+
+    return (
+    <div>
+        <select
+            value={activeInput ? activeInput.id : 'label'}
+            onChange={handleOptionSelect}>
+
+            <option value="label" disabled>Select midi device</option>
+            {$inputs}
+
+        </select>
+        &nbsp;
+        <ActiveInputOptions activeInput={activeInput}></ActiveInputOptions>
+    </div>
+    );
+}
+
+function ActiveInputOptions({ activeInput }) {
+    const [autoconnectInputIds, setAutoconnectInputIds] = useLocalStorage('autoconnect-midi-input-ids', []);
+    const connected = activeInput && activeInput.onmidimessage;
+
+    if (!activeInput) return null;
+
+    function handleAutoconnectChange() {
+        const autoconnect = !autoconnectInputIds.includes(activeInput.id);
+
+        if (autoconnect) {
+            if (autoconnectInputIds.includes(activeInput.id)) return;
+
+            autoconnectInputIds.push(activeInput.id);
+            setAutoconnectInputIds(autoconnectInputIds);
+        }
+        else {
+            setAutoconnectInputIds(autoconnectInputIds.filter(id => id !== activeInput.id))
+        }
     }
 
-    render() {
-        return (
-            <div>
-                <select defaultValue="label" onChange={this.handleChange}>
-                    <option value="label" disabled>Select midi device</option>
-                    {this.createSelectItems()}
-                </select>
-                <button onClick={this.connect}>Connect</button>
-            </div>
-        )
-    }
-
+    return <span>
+        <label className={connected ? 'connected' : ''}>connected</label>
+        <label>
+            &nbsp;
+            autoconnect
+            &nbsp;
+            <input type="checkbox" checked={autoconnectInputIds.includes(activeInput.id)} onChange={handleAutoconnectChange} />
+        </label>
+    </span>
 }
 
 export default MidiSelector;
