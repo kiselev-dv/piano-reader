@@ -106,7 +106,7 @@ export default function Stave(props) {
                 engraverParams={{ responsive: 'none', add_classes: true }}
                 renderParams={{ viewportHorizontal: true }}
             />
-            { props.renderABC && (<div style={{whiteSpace: 'pre'}}>{abc}</div>)}
+            { props.debugABC && (<div style={{whiteSpace: 'pre'}}>{abc}</div>)}
         </div>
     )
 }

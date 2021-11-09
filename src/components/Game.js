@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import PianoKeyboard from './PianoKeyboard';
 import MidiSelector from './MidiSelector';
@@ -9,12 +9,6 @@ import NotesState from '../util/Notes';
 import NotesMatcher from '../util/NotesMatcher';
 import useSingleton from '../hooks/useSingleton';
 import useRefCallback from '../hooks/useRefCallback';
-
-function bindLast(fn, that, ...args) {
-    return function(...callArgs) {
-        fn.call(that, ...callArgs, ...args);
-    }
-}
 
 function sampleArray(array, skip) {
     const result = array[Math.floor(Math.random() * array.length)];
@@ -91,6 +85,14 @@ export default function Game() {
         }
     }, [activeNotes.length, nextExercise]);
 
+    const handleScreenKeyboardNoteOn = useCallback(note => {
+        notes.handleKeyboard(note, false);
+    }, [ notes ]);
+
+    const handleScreenKeyboardNoteOff = useCallback(note => {
+        notes.handleKeyboard(note, true);
+    }, [ notes ]);
+
     const activeABCFillColor = nextExerciseAwaitsRef.current ? "#30C72C" : "#3AC8DA";
 
     return (
@@ -121,13 +123,13 @@ export default function Game() {
                 activeAbcFill={ activeABCFillColor }
                 grandStave={(lesson && lesson.grandStave) || showGrandStave}
                 system={exercise.system}
-                renderABC={showStaveABC}/>
+                debugABC={showStaveABC}/>
             }
 
             <PianoKeyboard width={1600}
                 activeNotes={activeNotes}
-                playNote={bindLast(notes.handleKeyboard, notes, false)}
-                stopNote={bindLast(notes.handleKeyboard, notes, true)}
+                playNote={handleScreenKeyboardNoteOn}
+                stopNote={handleScreenKeyboardNoteOff}
             />
         </div>
     )
