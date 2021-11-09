@@ -92,6 +92,8 @@ export default function Game() {
         }
     }, [activeNotes.length, nextExercise]);
 
+    const activeABCFillColor = nextExerciseAwaitsRef.current ? "#30C72C" : "#3AC8DA";
+
     return (
         <div id="game">
             <MidiSelector notes={ notes }/>
@@ -117,7 +119,7 @@ export default function Game() {
             { exercise &&
             <Stave
                 activeABC={activeABC}
-                activeAbcFill={ "#30C72C" }
+                activeAbcFill={ activeABCFillColor }
                 grandStave={(lesson && lesson.grandStave) || showGrandStave}
                 system={exercise.system}
                 renderABC={showStaveABC}/>
