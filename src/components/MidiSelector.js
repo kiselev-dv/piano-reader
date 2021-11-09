@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import useLocalStorage from '../util/useLocalStorage';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 function MidiSelector({ notes }) {
     const [inputs, setInputs] = useState();

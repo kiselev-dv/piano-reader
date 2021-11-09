@@ -62,7 +62,9 @@ export default class NotesMatcher {
         this.hitEvent = new CEvent();
         this.missEvent = new CEvent();
 
-        this.reset(system);
+        if (system) {
+            this.reset(system);
+        }
     }
 
     reset(system) {

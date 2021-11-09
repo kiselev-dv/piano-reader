@@ -16,8 +16,14 @@ function bindLast(fn, that, ...args) {
     }
 }
 
-function sampleArray(array) {
-    return array[Math.floor(Math.random() * array.length)];
+function sampleArray(array, skip) {
+    const result = array[Math.floor(Math.random() * array.length)];
+
+    if (skip && array.length > 1 && result === skip) {
+        return sampleArray(array, skip);
+    }
+
+    return result;
 }
 
 export default class Game extends React.Component {
@@ -30,9 +36,6 @@ export default class Game extends React.Component {
         const lesson = LESSONS[0];
 
         const exercises = lesson.createExercises();
-
-        this._hit = 0;
-        this._miss = 0;
 
         this.state = {
             lesson,
@@ -47,7 +50,8 @@ export default class Game extends React.Component {
             showGrandStave: false
         };
 
-        this.matcher = new NotesMatcher(this.state.exercise.system);
+        this.matcher = new NotesMatcher();
+        this.matcher.reset(this.state.exercise.system);
 
         this.matcher.matchEvent.on(this.match.bind(this));
         this.matcher.missEvent.on(this.miss.bind(this));
@@ -68,13 +72,6 @@ export default class Game extends React.Component {
         }
     }
 
-    handleMidiConnect(input) {
-        if (input) {
-            const notes = this.notes;
-            input.onmidimessage = notes.handleMidiMessage.bind(notes);
-        }
-    }
-
     handleLessonChange(lesson) {
         const exercises = lesson.createExercises();
         const exercise = sampleArray(exercises);
@@ -88,27 +85,20 @@ export default class Game extends React.Component {
         this.setState(state);
 
         this.matcher.reset(exercise.system);
-
-        this._hit = 0;
-        this._miss = 0;
     }
 
     match() {
         if (!this.nextExerciseAwaits) {
-            this._hit ++;
             this.nextExerciseAwaits = true;
         }
     }
 
     miss() {
-        if (!this.nextExerciseAwaits) {
-            this._miss ++;
-        }
     }
 
     nextExercise() {
         this.nextExerciseAwaits = false;
-        const exercise = sampleArray(this.state.exercises);
+        const exercise = sampleArray(this.state.exercises, this.state.exercise);
         this.setState({exercise});
         this.matcher.reset(exercise.system);
     }
@@ -118,7 +108,6 @@ export default class Game extends React.Component {
             <div id="game">
                 <MidiSelector notes={ this.notes }/>
                 <div>
-                    Hit: {this._hit}, Miss: {this._miss},
                     &nbsp;<input
                         type="checkbox"
                         onChange={e => {this.setState({showStaveABC:e.target.checked});}}></input>
@@ -127,6 +116,12 @@ export default class Game extends React.Component {
                         type="checkbox"
                         onChange={e => {this.setState({showGrandStave:e.target.checked});}}></input>
                         &nbsp;<label>Show Grand Stave</label>
+                    &nbsp;
+                    <button
+                        style={{"width": "100px"}}
+                        onClick={this.nextExercise.bind(this)} >
+                            Skip exercise
+                    </button>
                 </div>
 
                 <LessonsList selectedLesson={this.state.lesson} lessons={LESSONS}
@@ -134,14 +129,10 @@ export default class Game extends React.Component {
 
                 <Stave
                     activeABC={this.state.activeABC}
-                    activeAbcFill={this.nextExerciseAwaits ? "#30C72C" : "#3AC8DA"}
+                    activeAbcFill={ "#30C72C" }
                     grandStave={this.state.lesson.grandStave || this.state.showGrandStave}
                     system={this.state.exercise.system}
                     renderABC={this.state.showStaveABC}/>
-
-                <div>
-                    <button style={{"width": "100px"}} onClick={this.nextExercise.bind(this)} >Skip</button>
-                </div>
 
                 <PianoKeyboard width={1600}
                     activeNotes={this.state.activeNotes}
