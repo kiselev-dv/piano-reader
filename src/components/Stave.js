@@ -8,7 +8,7 @@ function isDoubleVoices(voices) {
         && voices.some(v => (v.clef || 'treble') === 'treble' )
 }
 
-export default function(props) {
+export default function Stave(props) {
 
     let abc;
     let activeVoice;
