@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {  useEffect, useState } from 'react';
+import { LESSONS } from '../lessons/lessons';
 
 import './Lessons.css'
 
@@ -15,14 +16,20 @@ function LessonListItem({lesson, selected, onClick}) {
     );
 }
 
-export default function LessonsList({selectedLesson, lessons, onSelect}) {
+export default function LessonsList({ onExercisesUpdate }) {
 
-    const $lessons = lessons.map((lesson, index) =>
+    const [selectedLesson, setSelectedLesson] = useState(LESSONS[0]);
+
+    useEffect(() => {
+        onExercisesUpdate(selectedLesson.createExercises(), selectedLesson);
+    }, [selectedLesson, onExercisesUpdate]);
+
+    const $lessons = LESSONS.map((lesson, index) =>
 
         <LessonListItem key={index}
             lesson={lesson}
             selected={lesson === selectedLesson}
-            onClick={() => {onSelect(lesson);}} />
+            onClick={() => { setSelectedLesson(lesson); }} />
 
     );
 

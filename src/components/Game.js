@@ -2,13 +2,13 @@ import React from 'react'
 
 import PianoKeyboard from './PianoKeyboard';
 import MidiSelector from './MidiSelector';
-import LessonsList from './LessonsList'
-import Stave from './Stave'
+import LessonsList from './LessonsList';
+import Stave from './Stave';
 
-import { LESSONS } from '../lessons/lessons'
+import { LESSONS } from '../lessons/lessons';
 
-import NotesState from '../util/Notes'
-import NotesMatcher from '../util/NotesMatcher'
+import NotesState from '../util/Notes';
+import NotesMatcher from '../util/NotesMatcher';
 
 function bindLast(fn, that, ...args) {
     return function(...callArgs) {
@@ -33,28 +33,25 @@ export default class Game extends React.Component {
         this.notes = new NotesState();
         this.notes.stateChangeEvent.on(this.handleActiveNotes.bind(this));
 
-        const lesson = LESSONS[0];
-
-        const exercises = lesson.createExercises();
-
         this.state = {
-            lesson,
-
             activeNotes: [],
             activeABC: '',
 
-            exercises,
-            exercise: sampleArray(exercises),
+            lesson: null,
+            exercise: null,
+            exercises: null,
 
             showStaveABC: false,
             showGrandStave: false
         };
 
         this.matcher = new NotesMatcher();
-        this.matcher.reset(this.state.exercise.system);
 
-        this.matcher.matchEvent.on(this.match.bind(this));
-        this.matcher.missEvent.on(this.miss.bind(this));
+        this.matcher.matchEvent.on(this.handleMatch.bind(this));
+        this.matcher.missEvent.on(this.handleMiss.bind(this));
+
+        this.setExercises = this.setExercises.bind(this);
+        this.nextExercise = this.nextExercise.bind(this);
     }
 
     handleActiveNotes(activeNotes) {
@@ -72,33 +69,29 @@ export default class Game extends React.Component {
         }
     }
 
-    handleLessonChange(lesson) {
-        const exercises = lesson.createExercises();
-        const exercise = sampleArray(exercises);
-
-        const state = {
-            lesson,
-            exercise,
-            exercises
-        };
-
-        this.setState(state);
-
-        this.matcher.reset(exercise.system);
-    }
-
-    match() {
+    handleMatch() {
         if (!this.nextExerciseAwaits) {
             this.nextExerciseAwaits = true;
         }
     }
 
-    miss() {
+    handleMiss() {
+    }
+
+    setExercises(exercises) {
+        this.nextExerciseAwaits = false;
+
+        const exercise = sampleArray(exercises, this.state.exercise);
+        this.setState({exercise, exercises});
+
+        this.matcher.reset(exercise.system);
     }
 
     nextExercise() {
         this.nextExerciseAwaits = false;
+
         const exercise = sampleArray(this.state.exercises, this.state.exercise);
+
         this.setState({exercise});
         this.matcher.reset(exercise.system);
     }
@@ -110,29 +103,30 @@ export default class Game extends React.Component {
                 <div>
                     &nbsp;<input
                         type="checkbox"
-                        onChange={e => {this.setState({showStaveABC:e.target.checked});}}></input>
+                        onChange={e => {this.setState({showStaveABC: e.target.checked});}}></input>
                     &nbsp;<label>Show stave ABC</label>
                     &nbsp;<input
                         type="checkbox"
-                        onChange={e => {this.setState({showGrandStave:e.target.checked});}}></input>
+                        onChange={e => {this.setState({showGrandStave: e.target.checked});}}></input>
                         &nbsp;<label>Show Grand Stave</label>
                     &nbsp;
                     <button
                         style={{"width": "100px"}}
-                        onClick={this.nextExercise.bind(this)} >
+                        onClick={this.nextExercise} >
                             Skip exercise
                     </button>
                 </div>
 
-                <LessonsList selectedLesson={this.state.lesson} lessons={LESSONS}
-                    onSelect={this.handleLessonChange.bind(this)} />
+                <LessonsList onExercisesUpdate={this.setExercises} />
 
+                { this.state.exercise &&
                 <Stave
                     activeABC={this.state.activeABC}
                     activeAbcFill={ "#30C72C" }
-                    grandStave={this.state.lesson.grandStave || this.state.showGrandStave}
+                    grandStave={(this.state.lesson && this.state.lesson.grandStave) || this.state.showGrandStave}
                     system={this.state.exercise.system}
                     renderABC={this.state.showStaveABC}/>
+                }
 
                 <PianoKeyboard width={1600}
                     activeNotes={this.state.activeNotes}
