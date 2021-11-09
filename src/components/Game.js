@@ -50,7 +50,6 @@ export default function Game() {
         setActiveABC(newActiveABC);
     });
 
-
     const handleExercisesUpdate = useRefCallback((exercises, lesson) => {
         nextExerciseAwaitsRef.current = false;
 
