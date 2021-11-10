@@ -5,7 +5,8 @@
 }
 
 .lesson {
-    width: 150px;
+    width: auto;
+    min-width: 125px;
     height: 75px;
     border-radius: 8px;
 
@@ -18,10 +19,17 @@
     margin-right: 5px;
 
     border: 1px solid #aaa;
+
+    user-select: none;
+}
+
+.lesson:hover {
+    cursor: pointer;
 }
 
 .lesson.selected {
     background-color: steelblue;
+    cursor: auto;
 }
 
 .lesson:first-child {

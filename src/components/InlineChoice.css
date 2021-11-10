@@ -1,0 +1,20 @@
+.inline-choice {
+    text-align: left;
+    padding-left: 1em;
+    padding-right: 1em;
+
+    white-space: nowrap;
+}
+
+.inline-choice-option {
+    display: inline-block;
+    margin-right: 0.25em;
+}
+
+.inline-choice-option:hover {
+    cursor: pointer;
+}
+
+.inline-choice-option.selected {
+    border-bottom: 2px solid lightblue;
+}

@@ -1,13 +1,20 @@
-import React, {  useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 import { LESSONS } from '../lessons/lessons';
 
 import './Lessons.css'
 
-function LessonListItem({lesson, selected, onClick}) {
-    return (
-    <div className={`lesson ${selected ? "selected" : ""}`}
-        onClick={() => {onClick(lesson)}}>
+/**
+ * Lesson representation,
+ * without any options
+ */
+function SimpleLessonListItem({selected, onChange, onClick, lesson}) {
+    useEffect(() => {
+        selected && onChange(lesson.exercises, lesson);
+    }, [selected, lesson, lesson.exercises, onChange]);
 
+    return (
+    <div className={`lesson ${selected ? "selected" : ""}`} onClick={onClick}>
         <div className="wrapper">
             <h4>{lesson.heder}</h4>
             <div>{lesson.subtitle}</div>
@@ -18,24 +25,19 @@ function LessonListItem({lesson, selected, onClick}) {
 
 export default function LessonsList({ onExercisesUpdate }) {
 
-    const [selectedLesson, setSelectedLesson] = useState(LESSONS[0]);
-
-    useEffect(() => {
-        onExercisesUpdate(selectedLesson.createExercises(), selectedLesson);
-    }, [selectedLesson, onExercisesUpdate]);
-
-    const $lessons = LESSONS.map((lesson, index) =>
-
-        <LessonListItem key={index}
-            lesson={lesson}
-            selected={lesson === selectedLesson}
-            onClick={() => { setSelectedLesson(lesson); }} />
-
-    );
+    const [lessonKey, setLessonKey] = useState(LESSONS[0].key);
 
     return (
         <div className="lessons">
-            {$lessons}
+            {LESSONS.map(lesson =>
+            <SimpleLessonListItem
+                key={lesson.key}
+                lesson={lesson}
+                selected={lessonKey === lesson.key}
+                onClick={() => {setLessonKey(lesson.key);}}
+                onChange={onExercisesUpdate}
+            />)
+            }
         </div>
     );
 }
