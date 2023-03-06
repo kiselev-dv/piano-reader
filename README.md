@@ -14,4 +14,14 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 * ABC.js - music notation engraver
 * React.js
 
+# Install and run
 
+```bash
+# install
+yarn install
+```
+
+```bash
+# start
+yarn start
+```

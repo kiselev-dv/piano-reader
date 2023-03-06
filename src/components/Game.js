@@ -34,7 +34,8 @@ export default function Game() {
     const [showStaveABC, setShowStaveABC] = useState(false);
     const [showGrandStave, setShowGrandStave] = useState(false);
 
-    const nextExerciseAwaitsRef = useRef(false);
+    const excerciseMatchedRef = useRef(false);
+    const excerciseRef = useRef(exercise);
 
     const handleActiveNotes = useRefCallback(newNotes => {
         matcher.setActiveNotes(newNotes);
@@ -44,43 +45,44 @@ export default function Game() {
         setActiveABC(newActiveABC);
     });
 
-    const handleExercisesUpdate = useRefCallback((exercises, lesson) => {
-        nextExerciseAwaitsRef.current = false;
+    const handleExercisesUpdate = useCallback((exercises, lesson) => {
+        excerciseMatchedRef.current = false;
 
-        const newExercise = sampleArray(exercises, exercise);
+        const newExercise = sampleArray(exercises, excerciseRef.current);
         setLesson(lesson);
         setExercises(exercises);
         setExercise(newExercise);
 
         matcher.reset(newExercise.system);
-    });
+    }, [excerciseRef, matcher]);
 
-    const nextExercise = useRefCallback(() => {
-        nextExerciseAwaitsRef.current = false;
+    const nextExercise = useCallback(() => {
+        excerciseMatchedRef.current = false;
 
         const newExercise = sampleArray(exercises, exercise);
 
         setExercise(newExercise);
         matcher.reset(newExercise.system);
-    });
+    }, [exercises, exercise, matcher]);
 
-    const handleMiss = useRefCallback(() => {
+    const handleMiss = useCallback(() => {
 
-    });
+    }, []);
 
-    const handleMatch = useRefCallback(() => {
-        nextExerciseAwaitsRef.current = true;
-    });
+    const handleMatch = useCallback(() => {
+        excerciseMatchedRef.current = true;
+    }, [excerciseMatchedRef]);
 
     // Register events callback for non react components
     useEffect(() => {
+        console.log('Register events');
         notes.stateChangeEvent.on(handleActiveNotes);
         matcher.matchEvent.on(handleMatch);
         matcher.missEvent.on(handleMiss);
     }, [notes.stateChangeEvent, matcher.matchEvent, matcher.missEvent, handleActiveNotes, handleMatch, handleMiss]);
 
     useEffect(() => {
-        if( nextExerciseAwaitsRef.current && activeNotes.length === 0) {
+        if( excerciseMatchedRef.current && activeNotes.length === 0) {
             nextExercise();
         }
     }, [activeNotes.length, nextExercise]);
@@ -93,7 +95,7 @@ export default function Game() {
         notes.handleKeyboard(note, true);
     }, [ notes ]);
 
-    const activeABCFillColor = nextExerciseAwaitsRef.current ? "#30C72C" : "#3AC8DA";
+    const activeABCFillColor = excerciseMatchedRef.current ? "#30C72C" : "#3AC8DA";
 
     return (
         <div id="game">
